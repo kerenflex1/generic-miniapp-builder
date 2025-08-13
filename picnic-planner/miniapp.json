@@ -1,0 +1,147 @@
+{
+  "name": "PicnicPro - Ultimate Collaborative Planner",
+  "version": "1.0.0",
+  "description": "The most comprehensive collaborative picnic planning app with real-time coordination, expense tracking, and seamless group management",
+  "author": "Olamo Development Team",
+  "icon": "assets/images/icon.png",
+  "category": "social",
+  "permissions": ["read", "write"],
+  "api_version": "2.0.0",
+  "main": "index.html",
+  "keywords": [
+    "picnic",
+    "planning",
+    "collaboration",
+    "events",
+    "group",
+    "social",
+    "rsvp",
+    "expenses",
+    "outdoor",
+    "coordination"
+  ],
+  "homepage": "https://picnicpro.olamo.app",
+  "repository": "https://github.com/olamo/picnic-planner",
+  "dependencies": {
+    "olamo-sdk": "^2.3.1"
+  },
+  "collections": {
+    "picnics": {
+      "schema": {
+        "title": { "type": "string", "required": true },
+        "description": { "type": "string" },
+        "date": { "type": "string", "required": true },
+        "time": { "type": "string", "required": true },
+        "location": { 
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "address": { "type": "string" },
+            "coordinates": { "type": "object" }
+          }
+        },
+        "organizer_id": { "type": "string", "required": true },
+        "status": { 
+          "type": "string", 
+          "enum": ["planning", "confirmed", "cancelled", "completed"],
+          "default": "planning"
+        },
+        "theme": { 
+          "type": "string", 
+          "enum": ["bbq", "family", "sports", "casual", "birthday", "company"],
+          "default": "casual"
+        },
+        "max_participants": { "type": "number", "default": 50 },
+        "is_public": { "type": "boolean", "default": false },
+        "weather_contingency": { "type": "string" }
+      }
+    },
+    "picnic_participants": {
+      "schema": {
+        "picnic_id": { "type": "string", "required": true },
+        "user_id": { "type": "string", "required": true },
+        "user_name": { "type": "string", "required": true },
+        "user_email": { "type": "string" },
+        "rsvp_status": { 
+          "type": "string", 
+          "enum": ["going", "not_going", "maybe", "pending"],
+          "default": "pending"
+        },
+        "dietary_restrictions": { "type": "array", "items": { "type": "string" } },
+        "plus_ones": { "type": "number", "default": 0 },
+        "notes": { "type": "string" },
+        "rsvp_date": { "type": "string" }
+      }
+    },
+    "picnic_items": {
+      "schema": {
+        "picnic_id": { "type": "string", "required": true },
+        "name": { "type": "string", "required": true },
+        "category": { 
+          "type": "string", 
+          "enum": ["food", "drinks", "tableware", "games", "equipment", "other"],
+          "required": true
+        },
+        "quantity_needed": { "type": "number", "required": true },
+        "unit": { "type": "string", "default": "pieces" },
+        "assigned_to": { "type": "string" },
+        "assigned_by": { "type": "string" },
+        "quantity_assigned": { "type": "number", "default": 0 },
+        "status": { 
+          "type": "string", 
+          "enum": ["needed", "assigned", "confirmed", "completed"],
+          "default": "needed"
+        },
+        "estimated_cost": { "type": "number" },
+        "priority": { 
+          "type": "string", 
+          "enum": ["high", "medium", "low"],
+          "default": "medium"
+        }
+      }
+    },
+    "picnic_expenses": {
+      "schema": {
+        "picnic_id": { "type": "string", "required": true },
+        "description": { "type": "string", "required": true },
+        "amount": { "type": "number", "required": true },
+        "paid_by": { "type": "string", "required": true },
+        "category": { 
+          "type": "string", 
+          "enum": ["food", "drinks", "supplies", "transportation", "other"],
+          "required": true
+        },
+        "split_type": { 
+          "type": "string", 
+          "enum": ["equal", "by_consumption", "custom", "organizer_pays"],
+          "default": "equal"
+        },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "per_person_amount": { "type": "number" },
+        "payment_method": { 
+          "type": "string", 
+          "enum": ["cash", "card", "digital", "other"],
+          "default": "card"
+        },
+        "date": { "type": "string", "required": true }
+      }
+    }
+  },
+  "features": {
+    "realtime": true,
+    "offline_support": false,
+    "push_notifications": false,
+    "geolocation": true,
+    "camera": false,
+    "file_upload": true
+  },
+  "min_participants": 1,
+  "max_participants": 100,
+  "supported_themes": ["light", "dark", "auto"],
+  "responsive": true,
+  "accessibility": {
+    "keyboard_navigation": true,
+    "screen_reader": true,
+    "high_contrast": true
+  }
+}
