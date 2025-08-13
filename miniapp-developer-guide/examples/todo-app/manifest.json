@@ -1,0 +1,16 @@
+{
+  "name": "Todo List Manager",
+  "version": "1.0.0",
+  "description": "A simple yet powerful task management miniapp with cloud sync",
+  "author": "Olamo Development Team",
+  "icon": "assets/images/icon.png",
+  "category": "productivity",
+  "permissions": ["read", "write"],
+  "api_version": "2.0.0",
+  "main": "index.html",
+  "keywords": ["todo", "tasks", "productivity", "management", "lists"],
+  "homepage": "https://olamo.app",
+  "dependencies": {
+    "olamo-generic-backend": "^2.0.0"
+  }
+}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App - Olamo Miniapp</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>📝 Todo App</h1>
+            <p>Manage your tasks with Olamo's backend integration</p>
+        </header>
+
+        <main>
+            <!-- Add new task form -->
+            <section class="add-task-section">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="taskInput" 
+                        placeholder="Enter a new task..." 
+                        maxlength="200"
+                    >
+                    <button id="addBtn" onclick="addTask()">Add Task</button>
+                </div>
+            </section>
+
+            <!-- Task filters -->
+            <section class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+            </section>
+
+            <!-- Tasks list -->
+            <section class="tasks-section">
+                <div id="tasksContainer">
+                    <!-- Tasks will be loaded here -->
+                </div>
+                <div id="emptyState" class="empty-state">
+                    <p>🎉 No tasks yet! Add one above to get started.</p>
+                </div>
+            </section>
+
+            <!-- Task statistics -->
+            <section class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="totalTasks">0</span>
+                    <span class="stat-label">Total</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="completedTasks">0</span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="pendingTasks">0</span>
+                    <span class="stat-label">Pending</span>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <p>Loading tasks...</p>
+        </div>
+
+        <!-- Error message -->
+        <div id="errorMessage" class="error-message">
+            <p id="errorText"></p>
+            <button onclick="hideError()">Dismiss</button>
+        </div>
+    </div>
+
+    <!-- Task template (hidden) -->
+    <template id="taskTemplate">
+        <div class="task-item" data-id="">
+            <div class="task-content">
+                <input type="checkbox" class="task-checkbox" onchange="toggleTask(this)">
+                <span class="task-title"></span>
+                <span class="task-date"></span>
+            </div>
+            <div class="task-actions">
+                <button class="edit-btn" onclick="editTask(this)">✏️</button>
+                <button class="delete-btn" onclick="deleteTask(this)">🗑️</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

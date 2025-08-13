@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicnicPro - Ultimate Collaborative Planner</title>
+    <meta name="description" content="The most comprehensive collaborative picnic planning app">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" type="image/png" href="assets/images/icon.png">
+    <meta name="theme-color" content="#2ECC71">
+</head>
+<body>
+    <!-- App Container -->
+    <div id="app" class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="assets/images/icon.png" alt="PicnicPro" class="app-logo">
+                    <h1 class="app-title">PicnicPro</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="themeToggle" class="icon-btn" title="Toggle theme">
+                        <span class="icon">🌓</span>
+                    </button>
+                    <button id="notificationsBtn" class="icon-btn" title="Notifications">
+                        <span class="icon">🔔</span>
+                        <span class="notification-badge" id="notificationBadge"></span>
+                    </button>
+                    <div class="user-profile" id="userProfile">
+                        <img src="https://via.placeholder.com/32" alt="Profile" class="profile-avatar">
+                        <span class="profile-name" id="userName">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="nav-item active" data-view="dashboard">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Dashboard</span>
+            </button>
+            <button class="nav-item" data-view="create">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Create</span>
+            </button>
+            <button class="nav-item" data-view="my-events">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">My Events</span>
+            </button>
+            <button class="nav-item" data-view="expenses">
+                <span class="nav-icon">💰</span>
+                <span class="nav-label">Expenses</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Dashboard View -->
+            <div class="view dashboard-view active" id="dashboardView">
+                <div class="view-header">
+                    <h2>Your Picnics</h2>
+                    <div class="search-filter">
+                        <input type="text" id="searchInput" placeholder="Search picnics..." class="search-input">
+                        <select id="filterSelect" class="filter-select">
+                            <option value="all">All Events</option>
+                            <option value="upcoming">Upcoming</option>
+                            <option value="planning">Planning</option>
+                            <option value="past">Past</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="upcomingCount">0</span>
+                            <span class="stat-label">Upcoming</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="participantCount">0</span>
+                            <span class="stat-label">Participants</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="expenseTotal">$0</span>
+                            <span class="stat-label">Total Expenses</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Picnic Cards -->
+                <div class="picnic-grid" id="picnicGrid">
+                    <!-- Picnic cards will be dynamically loaded here -->
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🧺</div>
+                    <h3>No picnics yet!</h3>
+                    <p>Create your first collaborative picnic event to get started.</p>
+                    <button class="btn btn-primary" onclick="switchView('create')">
+                        Create Your First Picnic
+                    </button>
+                </div>
+            </div>
+
+            <!-- Create Picnic View -->
+            <div class="view create-view" id="createView">
+                <div class="view-header">
+                    <h2>Create New Picnic</h2>
+                    <button class="btn btn-secondary" onclick="switchView('dashboard')">Cancel</button>
+                </div>
+
+                <form class="create-form" id="createForm">
+                    <div class="form-section">
+                        <h3>📝 Basic Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="picnicTitle">Event Title</label>
+                                <input type="text" id="picnicTitle" name="title" required 
+                                       placeholder="e.g., Summer BBQ at Central Park">
+                            </div>
+                            <div class="form-group">
+                                <label for="picnicTheme">Theme</label>
+                                <select id="picnicTheme" name="theme">
+                                    <option value="bbq">🔥 BBQ & Grill</option>
+                                    <option value="family">👨‍👩‍👧‍👦 Family Fun</option>
+                                    <option value="sports">⚽ Sports & Games</option>
+                                    <option value="casual">🧺 Casual Gathering</option>
+                                    <option value="birthday">🎂 Birthday</option>
+                                    <option value="company">🏢 Company Event</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="picnicDescription">Description</label>
+                            <textarea id="picnicDescription" name="description" rows="3" 
+                                    placeholder="Tell everyone what this picnic is about..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📅 Date & Time</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="picnicDate">Date</label>
+                                <input type="date" id="picnicDate" name="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="picnicTime">Time</label>
+                                <input type="time" id="picnicTime" name="time" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>📍 Location</h3>
+                        <div class="form-group">
+                            <label for="locationName">Location Name</label>
+                            <input type="text" id="locationName" name="locationName" 
+                                   placeholder="e.g., Central Park - Sheep Meadow">
+                        </div>
+                        <div class="form-group">
+                            <label for="locationAddress">Address</label>
+                            <input type="text" id="locationAddress" name="locationAddress" 
+                                   placeholder="Full address for navigation">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>⚙️ Settings</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="maxParticipants">Max Participants</label>
+                                <input type="number" id="maxParticipants" name="maxParticipants" 
+                                       min="1" max="100" value="20">
+                            </div>
+                            <div class="form-group">
+                                <label for="isPublic">Visibility</label>
+                                <select id="isPublic" name="isPublic">
+                                    <option value="false">Private (Invite only)</option>
+                                    <option value="true">Public (Anyone can join)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="weatherContingency">Weather Backup Plan</label>
+                            <input type="text" id="weatherContingency" name="weatherContingency" 
+                                   placeholder="e.g., Move to community center if raining">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">
+                            🎉 Create Picnic
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Picnic Detail View -->
+            <div class="view picnic-detail-view" id="picnicDetailView">
+                <div class="view-header">
+                    <button class="btn btn-ghost" onclick="switchView('dashboard')">← Back</button>
+                    <div class="detail-actions">
+                        <button class="btn btn-secondary" id="editPicnicBtn">Edit</button>
+                        <button class="btn btn-danger" id="deletePicnicBtn">Delete</button>
+                    </div>
+                </div>
+
+                <div class="picnic-detail-content" id="picnicDetailContent">
+                    <!-- Dynamic content loaded here -->
+                </div>
+            </div>
+
+            <!-- My Events View -->
+            <div class="view my-events-view" id="myEventsView">
+                <div class="view-header">
+                    <h2>My Events</h2>
+                    <div class="event-tabs">
+                        <button class="tab-btn active" data-tab="organizing">Organizing</button>
+                        <button class="tab-btn" data-tab="attending">Attending</button>
+                        <button class="tab-btn" data-tab="invited">Invited</button>
+                    </div>
+                </div>
+                <div class="events-content" id="eventsContent">
+                    <!-- Events content -->
+                </div>
+            </div>
+
+            <!-- Expenses View -->
+            <div class="view expenses-view" id="expensesView">
+                <div class="view-header">
+                    <h2>Expense Tracker</h2>
+                    <button class="btn btn-primary" id="addExpenseBtn">Add Expense</button>
+                </div>
+                <div class="expenses-content" id="expensesContent">
+                    <!-- Expenses content -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Action Button -->
+        <button class="fab" id="fab" onclick="switchView('create')" title="Create new picnic">
+            <span class="fab-icon">➕</span>
+        </button>
+
+        <!-- Modals -->
+        <!-- RSVP Modal -->
+        <div class="modal" id="rsvpModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>RSVP to Picnic</h3>
+                    <button class="modal-close" onclick="closeModal('rsvpModal')">&times;</button>
+                </div>
+                <form class="modal-body" id="rsvpForm">
+                    <div class="rsvp-options">
+                        <label class="rsvp-option">
+                            <input type="radio" name="rsvp" value="going">
+                            <span class="rsvp-icon">✅</span>
+                            <span>Going</span>
+                        </label>
+                        <label class="rsvp-option">
+                            <input type="radio" name="rsvp" value="maybe">
+                            <span class="rsvp-icon">❓</span>
+                            <span>Maybe</span>
+                        </label>
+                        <label class="rsvp-option">
+                            <input type="radio" name="rsvp" value="not_going">
+                            <span class="rsvp-icon">❌</span>
+                            <span>Can't Make It</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="plusOnes">Plus Ones</label>
+                        <input type="number" id="plusOnes" name="plusOnes" min="0" max="5" value="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dietaryRestrictions">Dietary Restrictions</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" value="vegetarian"> Vegetarian</label>
+                            <label><input type="checkbox" value="vegan"> Vegan</label>
+                            <label><input type="checkbox" value="gluten-free"> Gluten-Free</label>
+                            <label><input type="checkbox" value="dairy-free"> Dairy-Free</label>
+                            <label><input type="checkbox" value="nut-allergy"> Nut Allergy</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rsvpNotes">Additional Notes</label>
+                        <textarea id="rsvpNotes" name="notes" rows="3" 
+                                placeholder="Any special requirements or messages..."></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('rsvpModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save RSVP</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Item Modal -->
+        <div class="modal" id="addItemModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Item to Picnic</h3>
+                    <button class="modal-close" onclick="closeModal('addItemModal')">&times;</button>
+                </div>
+                <form class="modal-body" id="addItemForm">
+                    <div class="form-group">
+                        <label for="itemName">Item Name</label>
+                        <input type="text" id="itemName" name="name" required 
+                               placeholder="e.g., Paper plates, Hamburgers">
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="itemCategory">Category</label>
+                            <select id="itemCategory" name="category" required>
+                                <option value="food">🍔 Food</option>
+                                <option value="drinks">🥤 Drinks</option>
+                                <option value="tableware">🍽️ Tableware</option>
+                                <option value="games">🎲 Games & Entertainment</option>
+                                <option value="equipment">🏕️ Equipment</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemPriority">Priority</label>
+                            <select id="itemPriority" name="priority">
+                                <option value="high">🔴 High</option>
+                                <option value="medium" selected>🟡 Medium</option>
+                                <option value="low">🟢 Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="itemQuantity">Quantity Needed</label>
+                            <input type="number" id="itemQuantity" name="quantity" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="itemUnit">Unit</label>
+                            <input type="text" id="itemUnit" name="unit" 
+                                   placeholder="e.g., pieces, bottles, servings">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="estimatedCost">Estimated Cost (Optional)</label>
+                        <input type="number" id="estimatedCost" name="estimatedCost" 
+                               step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemNotes">Notes</label>
+                        <textarea id="itemNotes" name="notes" rows="2" 
+                                placeholder="Brand preferences, special instructions..."></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addItemModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <!-- Template for Picnic Card -->
+    <template id="picnicCardTemplate">
+        <div class="picnic-card" data-id="">
+            <div class="card-header">
+                <div class="card-theme-icon"></div>
+                <div class="card-date">
+                    <span class="date-day"></span>
+                    <span class="date-month"></span>
+                </div>
+            </div>
+            <div class="card-content">
+                <h3 class="card-title"></h3>
+                <p class="card-description"></p>
+                <div class="card-location">
+                    <span class="location-icon">📍</span>
+                    <span class="location-text"></span>
+                </div>
+                <div class="card-stats">
+                    <div class="stat">
+                        <span class="stat-icon">👥</span>
+                        <span class="stat-text"></span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">📋</span>
+                        <span class="stat-text"></span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-icon">💰</span>
+                        <span class="stat-text"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-actions">
+                <button class="btn btn-ghost btn-sm card-action-btn" onclick="viewPicnic(this)">View</button>
+                <button class="btn btn-primary btn-sm card-action-btn" onclick="openRsvpModal(this)">RSVP</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template for Item Card -->
+    <template id="itemCardTemplate">
+        <div class="item-card" data-id="">
+            <div class="item-header">
+                <div class="item-category-icon"></div>
+                <div class="item-priority"></div>
+            </div>
+            <div class="item-content">
+                <h4 class="item-name"></h4>
+                <div class="item-quantity">
+                    <span class="quantity-needed"></span> / <span class="quantity-assigned"></span>
+                </div>
+                <div class="item-assignee"></div>
+            </div>
+            <div class="item-actions">
+                <button class="btn btn-sm" onclick="assignToMe(this)">Assign to Me</button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Scripts -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

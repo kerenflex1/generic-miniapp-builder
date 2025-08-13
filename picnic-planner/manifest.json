@@ -1,0 +1,45 @@
+{
+  "name": "PicnicPro - Ultimate Collaborative Planner",
+  "version": "1.0.0",
+  "description": "The most comprehensive collaborative picnic planning app with real-time coordination, expense tracking, and seamless group management",
+  "author": "Olamo Development Team",
+  "icon": "assets/images/icon.png",
+  "category": "social",
+  "permissions": ["read", "write"],
+  "api_version": "2.0.0",
+  "main": "index.html",
+  "keywords": [
+    "picnic",
+    "planning",
+    "collaboration",
+    "events",
+    "group",
+    "social",
+    "rsvp",
+    "expenses",
+    "outdoor",
+    "coordination"
+  ],
+  "homepage": "https://picnicpro.olamo.app",
+  "repository": "https://github.com/olamo/picnic-planner",
+  "dependencies": {
+    "olamo-sdk": "^2.3.1"
+  },
+  "features": {
+    "realtime": true,
+    "offline_support": false,
+    "push_notifications": false,
+    "geolocation": true,
+    "camera": false,
+    "file_upload": true
+  },
+  "min_participants": 1,
+  "max_participants": 100,
+  "supported_themes": ["light", "dark", "auto"],
+  "responsive": true,
+  "accessibility": {
+    "keyboard_navigation": true,
+    "screen_reader": true,
+    "high_contrast": true
+  }
+}

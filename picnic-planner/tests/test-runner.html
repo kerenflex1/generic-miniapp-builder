@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicnicPro Test Runner</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-suite {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .test-suite h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #2ECC71;
+            padding-bottom: 10px;
+        }
+        
+        .test-case {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .test-case.pass {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        
+        .test-case.fail {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .test-case.pending {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .test-summary {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 30px;
+        }
+        
+        .test-actions {
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #2ECC71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #27AE60;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:hover {
+            background: #545b62;
+        }
+        
+        .error-details {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .test-progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .test-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2ECC71, #27AE60);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧺 PicnicPro Test Runner</h1>
+        <p>Comprehensive testing suite for the PicnicPro collaborative picnic planner.</p>
+        
+        <div class="test-actions">
+            <button onclick="runAllTests()">Run All Tests</button>
+            <button onclick="runUnitTests()" class="secondary">Unit Tests Only</button>
+            <button onclick="runIntegrationTests()" class="secondary">Integration Tests Only</button>
+            <button onclick="runE2ETests()" class="secondary">E2E Tests Only</button>
+            <button onclick="clearResults()" class="secondary">Clear Results</button>
+        </div>
+        
+        <div class="test-progress">
+            <div class="test-progress-bar" id="progressBar"></div>
+        </div>
+        
+        <div id="testResults"></div>
+        
+        <div class="test-summary" id="testSummary" style="display: none;">
+            <h3>Test Summary</h3>
+            <div id="summaryContent"></div>
+        </div>
+    </div>
+
+    <!-- Include the app files for testing -->
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/components.js"></script>
+    
+    <!-- Mock Olamo Auth for testing -->
+    <script>
+        // Mock authentication for testing
+        window.olamoAuth = {
+            getToken: () => 'test-jwt-token-12345',
+            getUserInfo: () => ({
+                user_id: 'test-user-123',
+                uid: 'test-user-123',
+                name: 'Test User',
+                displayName: 'Test User',
+                email: 'test@example.com'
+            }),
+            isAuthenticated: () => true,
+            hasPermission: (permission) => true,
+            refreshToken: () => Promise.resolve('refreshed-test-token'),
+            getUserGroups: () => ['test-group'],
+            onTokenRefresh: (callback) => {},
+            onAuthStateChanged: (callback) => {}
+        };
+    </script>
+    
+    <!-- Test Framework -->
+    <script>
+        class TestRunner {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+                this.currentSuite = null;
+                this.totalTests = 0;
+                this.passedTests = 0;
+                this.failedTests = 0;
+                this.pendingTests = 0;
+            }
+
+            describe(name, callback) {
+                this.currentSuite = { name, tests: [] };
+                callback();
+                this.tests.push(this.currentSuite);
+                this.currentSuite = null;
+            }
+
+            it(name, callback) {
+                if (this.currentSuite) {
+                    this.currentSuite.tests.push({ name, callback });
+                }
+            }
+
+            async runTests(filter = null) {
+                this.results = [];
+                this.totalTests = 0;
+                this.passedTests = 0;
+                this.failedTests = 0;
+                this.pendingTests = 0;
+
+                const filteredTests = filter ? this.tests.filter(filter) : this.tests;
+                
+                for (const test of filteredTests) {
+                    this.totalTests += test.tests.length;
+                }
+
+                let completedTests = 0;
+
+                for (const suite of filteredTests) {
+                    const suiteResult = { name: suite.name, tests: [] };
+                    
+                    for (const test of suite.tests) {
+                        try {
+                            await test.callback();
+                            suiteResult.tests.push({ name: test.name, status: 'pass' });
+                            this.passedTests++;
+                        } catch (error) {
+                            suiteResult.tests.push({ 
+                                name: test.name, 
+                                status: 'fail', 
+                                error: error.message,
+                                stack: error.stack 
+                            });
+                            this.failedTests++;
+                        }
+                        
+                        completedTests++;
+                        this.updateProgress((completedTests / this.totalTests) * 100);
+                        await this.sleep(50); // Small delay for visual feedback
+                    }
+                    
+                    this.results.push(suiteResult);
+                }
+
+                this.displayResults();
+                this.displaySummary();
+            }
+
+            updateProgress(percentage) {
+                const progressBar = document.getElementById('progressBar');
+                progressBar.style.width = percentage + '%';
+            }
+
+            displayResults() {
+                const resultsContainer = document.getElementById('testResults');
+                resultsContainer.innerHTML = '';
+
+                this.results.forEach(suite => {
+                    const suiteDiv = document.createElement('div');
+                    suiteDiv.className = 'test-suite';
+                    
+                    const suiteTitle = document.createElement('h2');
+                    suiteTitle.textContent = suite.name;
+                    suiteDiv.appendChild(suiteTitle);
+
+                    suite.tests.forEach(test => {
+                        const testDiv = document.createElement('div');
+                        testDiv.className = `test-case ${test.status}`;
+                        
+                        const icon = test.status === 'pass' ? '✅' : test.status === 'fail' ? '❌' : '⏳';
+                        testDiv.innerHTML = `${icon} ${test.name}`;
+                        
+                        if (test.error) {
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-details';
+                            errorDiv.textContent = `Error: ${test.error}\n\n${test.stack}`;
+                            testDiv.appendChild(errorDiv);
+                        }
+                        
+                        suiteDiv.appendChild(testDiv);
+                    });
+
+                    resultsContainer.appendChild(suiteDiv);
+                });
+            }
+
+            displaySummary() {
+                const summaryContainer = document.getElementById('testSummary');
+                const summaryContent = document.getElementById('summaryContent');
+                
+                const passRate = this.totalTests > 0 ? (this.passedTests / this.totalTests * 100).toFixed(1) : 0;
+                
+                summaryContent.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div>
+                            <strong>Total Tests:</strong> ${this.totalTests}<br>
+                            <strong>Passed:</strong> <span style="color: #28a745;">${this.passedTests}</span><br>
+                            <strong>Failed:</strong> <span style="color: #dc3545;">${this.failedTests}</span><br>
+                            <strong>Pass Rate:</strong> ${passRate}%
+                        </div>
+                        <div>
+                            <strong>Status:</strong> ${this.failedTests === 0 ? '🎉 All tests passed!' : '⚠️ Some tests failed'}<br>
+                            <strong>Duration:</strong> ${Date.now() - this.startTime}ms<br>
+                            <strong>Browser:</strong> ${navigator.userAgent.split(' ').pop()}
+                        </div>
+                    </div>
+                `;
+                
+                summaryContainer.style.display = 'block';
+            }
+
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            // Assertion methods
+            expect(actual) {
+                return {
+                    toBe: (expected) => {
+                        if (actual !== expected) {
+                            throw new Error(`Expected ${actual} to be ${expected}`);
+                        }
+                    },
+                    toEqual: (expected) => {
+                        if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+                            throw new Error(`Expected ${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`);
+                        }
+                    },
+                    toBeTruthy: () => {
+                        if (!actual) {
+                            throw new Error(`Expected ${actual} to be truthy`);
+                        }
+                    },
+                    toBeFalsy: () => {
+                        if (actual) {
+                            throw new Error(`Expected ${actual} to be falsy`);
+                        }
+                    },
+                    toThrow: () => {
+                        if (typeof actual !== 'function') {
+                            throw new Error('Expected a function to test for throwing');
+                        }
+                        try {
+                            actual();
+                            throw new Error('Expected function to throw an error');
+                        } catch (e) {
+                            // Expected behavior
+                        }
+                    },
+                    toContain: (item) => {
+                        if (!actual.includes || !actual.includes(item)) {
+                            throw new Error(`Expected ${actual} to contain ${item}`);
+                        }
+                    },
+                    toBeInstanceOf: (constructor) => {
+                        if (!(actual instanceof constructor)) {
+                            throw new Error(`Expected ${actual} to be instance of ${constructor.name}`);
+                        }
+                    }
+                };
+            }
+        }
+
+        const testRunner = new TestRunner();
+        
+        // Global test functions
+        window.describe = (name, callback) => testRunner.describe(name, callback);
+        window.it = (name, callback) => testRunner.it(name, callback);
+        window.expect = (actual) => testRunner.expect(actual);
+        
+        // Test control functions
+        window.runAllTests = async () => {
+            testRunner.startTime = Date.now();
+            await testRunner.runTests();
+        };
+        
+        window.runUnitTests = async () => {
+            testRunner.startTime = Date.now();
+            await testRunner.runTests(suite => suite.name.includes('Unit'));
+        };
+        
+        window.runIntegrationTests = async () => {
+            testRunner.startTime = Date.now();
+            await testRunner.runTests(suite => suite.name.includes('Integration'));
+        };
+        
+        window.runE2ETests = async () => {
+            testRunner.startTime = Date.now();
+            await testRunner.runTests(suite => suite.name.includes('E2E'));
+        };
+        
+        window.clearResults = () => {
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('testSummary').style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+        };
+    </script>
+    
+    <!-- Load Test Suites -->
+    <script src="unit-tests.js"></script>
+    <script src="integration-tests.js"></script>
+    <script src="e2e-tests.js"></script>
+</body>
+</html>
